@@ -1,0 +1,45 @@
+services:
+  # ---------- Container 1: n8n (Editor + Workflow-Engine + Datenbank) ----------
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION}
+    container_name: n8n-main
+    ports:
+      # Host-Port:Container-Port. Nur an 127.0.0.1 gebunden,
+      # damit niemand aus deinem WLAN auf n8n zugreifen kann
+      - "127.0.0.1:5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Europe/Berlin
+      - TZ=Europe/Berlin
+      # Code-Node-Code im separaten Runner-Container ausführen (Isolation)
+      - N8N_RUNNERS_MODE=external
+      # Auf Verbindungen vom Runner-Container warten (Port 5679, nur im Docker-Netz)
+      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
+      - N8N_NATIVE_PYTHON_RUNNER=true
+      # Keine Verbindungen zu n8n-Servern (Telemetrie, Versionscheck, Vorlagen)
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_TEMPLATES_ENABLED=false
+    volumes:
+      # Datenbank, Credentials und Verschlüsselungsschlüssel dauerhaft speichern
+      - n8n_data:/home/node/.n8n
+
+  # ---------- Container 2: Task Runner (führt Python/JS aus dem Code-Node aus) ----------
+  task-runners:
+    image: n8nio/runners:${N8N_VERSION}
+    container_name: n8n-runners
+    environment:
+      # "n8n-main" ist der Containername von oben; Docker löst ihn im internen Netz auf
+      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n-main:5679
+      - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
+    depends_on:
+      - n8n
+  
+  # ---------- Container 3: PDF-Werkzeuge inkl. OCR, selbst gehostet ----------
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest-fat   # "fat" = mit Tesseract-OCR
+    container_name: stirling-pdf
+    ports:
+      - "127.0.0.1:8080:8080"   # nur für dich: Oberfläche + API-Doku
+volumes:
+  n8n_data:

@@ -1,0 +1,89 @@
+{
+  "name": "Error Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "daf3721f-c19f-4506-9d3f-2974e78d23c6",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "fromEmail": "haritianaramparany3331@gmail.com",
+        "toEmail": "haritianaramparany3331@gmail.com",
+        "subject": "=n8n-Fehler in {{ $json.workflow.name }}",
+        "emailFormat": "text",
+        "text": "=  Workflow: {{ $json.workflow.name }}\n  Fehler: {{ $json.execution.error.message }}\n  Letzter Node: {{ $json.execution.lastNodeExecuted }}\n  Ausführung: {{ $json.execution.id }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "fb090756-b09d-4ea4-acde-1fea3d0fc475",
+      "name": "Send an Email",
+      "webhookId": "846e1c5f-021b-48d7-b841-4b3db554b95b",
+      "credentials": {
+        "smtp": {
+          "id": "A0Pzr0qGoCSStMPF",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Error Trigger": [
+      {
+        "json": {
+          "execution": {
+            "id": "231",
+            "error": {
+              "message": "Example Error Message"
+            },
+            "lastNodeExecuted": "Node With Error",
+            "mode": "trigger"
+          },
+          "workflow": {
+            "id": "1",
+            "name": "Example Workflow"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8b036431-9790-4aef-96a8-84385ee18250",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8bdf02e82cc8e68625b1513476feb2a2b680a1828203118fd99ac7a29446e173"
+  },
+  "nodeGroups": [],
+  "id": "s6av53AlsLPU90hR",
+  "tags": []
+}
